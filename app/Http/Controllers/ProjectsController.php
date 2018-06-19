@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Project;
 use Illuminate\Http\Request;
 use Response;
+use  App\Http\Resources\ProjectCollection;
 
 class ProjectsController extends Controller
 {
@@ -15,10 +16,8 @@ class ProjectsController extends Controller
      */
     public function index()
     {
-        $projects = Project::with('location')->get();
-        return Response::json([
-            'data' => $this->transformCollection($projects)
-        ]);
+        $projects = Project::with('location', 'equivalences')->paginate(1);
+        return new ProjectCollection($projects);
     }
 
     /**
@@ -53,7 +52,7 @@ class ProjectsController extends Controller
         $project = Project::find(['id' => $project->id])->load('location');
         return Response::json([
             'data' => $this->transformCollection($project)
-        ]);
+        ]); 
         if(! project) {
             return Response::json([
                 'error' => 'Il n\'y a pas de projet'
